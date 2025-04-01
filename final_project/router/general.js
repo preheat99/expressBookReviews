@@ -55,6 +55,7 @@ function hashPassword(password) {
 // Route: Get the list of available books
 public_users.get('/', function (req, res) {
   // Retrieve the list of available books from the database or any other source
+  console.log(books)
   const availableBooks = books.filter(book => book.available);
 
   // Check if there are available books
