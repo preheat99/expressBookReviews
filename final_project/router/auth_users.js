@@ -37,27 +37,16 @@ regd_users.put('/auth/review/:isbn', (req, res) => {
   try {
     const decoded = jwt.verify(token, SECRET_KEY)
     const user = users.find((user) => user.username === decoded.username)
-
+    console.log(books, isbn)
     if (!books[isbn]) {
       return res.status(404).json({ message: 'Book not found' })
     }
 
-    if (!books[isbn].reviews) {
-      books[isbn].reviews = []
-    }
-
-    const reviewsBooks = books[isbn].reviews
-    const reviewUser = Object.keys(reviewsBooks).find(
-      (r) => r.username === user
-    )
-
-    if (reviewUser) {
-      return res.status(400).json({ message: 'Review already exists' })
-    } else {
-      books[isbn].reviews[user] = review
-      return res.status(200).json({ message: 'Review added successfully' })
-    }
+    books[isbn].reviews = []
+    books[isbn].reviews.push(review)
+    return res.status(200).json({ message: 'Review added successfully', data:  books[isbn].reviews})
   } catch (error) {
+    console.log(error)
     res.status(400).send('Invalid token')
   }
 })
@@ -73,13 +62,11 @@ regd_users.delete('/auth/review/:isbn', (req, res) => {
     if (!books[isbn]) {
       return res.status(404).json({ message: 'Book not found' })
     }
-    if (!books[isbn].reviews) {
+    if (!books[isbn].reviews.length) {
       return res.status(404).json({ message: 'No reviews found for this book' })
     }
 
-    books[isbn].reviews = Object.keys(books[isbn].reviews).find(
-      (r) => r.username !== username
-    )
+    books[isbn].reviews.pop()
     return res.status(200).json({ message: 'Review deleted successfully' })
   } catch (error) {
     return res.status(401).json({ message: 'Unauthorized' })
